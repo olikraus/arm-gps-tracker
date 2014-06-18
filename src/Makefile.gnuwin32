@@ -40,7 +40,8 @@
 #    https://launchpad.net/gcc-arm-embedded/
 #  download and execute the
 #    Windows installer
-#  The rest of this sections assumes, that gcc-arm-embedded has been installed at the default location.
+#  The rest of this sections assumes, that gcc-arm-embedded has been installed here:
+#    C:\Program Files (x86)\GNU Tools ARM Embedded\
 #  
 #  In order to flash the ARM controller via UART interface (attached to a FTDI USB/UART converter),
 #  download and install the virtual com port (VCP) driver:
@@ -50,11 +51,11 @@
 #  Download and install:
 #  	http://www.flashmagictool.com/
 #  
-#  Unzip u8glib for ARM controller into an empty folder (c:\u8g).
+#  Unzip arm-gps-tracker sources into an empty folder (c:\arm-gps-tracker).
 #  
 #  Start "cmd.exe" 
 #  
-#  cd c:\u8g\lpc1114\hello_world\
+#  cd c:\arm-gps-tracker\src\
 #  
 #  "c:\Program Files (x86)\GnuWin32\bin\make.exe" -f Makefile.gnuwin32
 #  
@@ -70,8 +71,7 @@
 # External tools
 
 # The base directory of gcc-arm-none-eabi
-# GCCPATH:=c:\Program\ Files\ \(x86\)/GNU\ Tools\ ARM\ Embedded/4.7\ 2013q2/
-GCCPATH:="c:\Program Files (x86)\GNU Tools ARM Embedded\4.7 2013q2"
+GCCPATH:="c:\Program Files (x86)\GNU Tools ARM Embedded"
 
 # Flash Tool
 # FLASHTOOL:= /c/Program\ Files\ \(x86\)/Flash\ Magic/FlashMagic.exe
@@ -82,7 +82,7 @@ FLASHMAGICDEVICE:=LPC1114/102
 # Project Information
 
 # The name for the project
-TARGETNAME:=$(firstword $(basename $(wildcard *.c)))
+TARGETNAME:=arm-gps-tracker
 
 # The source files of the project
 SRC:=$(wildcard *.c)
@@ -104,10 +104,8 @@ STARTUP:=$(wildcard ../common/*.S)
 SYSINC:=../common
 SYSSRC:=$(wildcard ../common/*.c)
 
-# Directory for the linker script
-LDSCRIPTDIR:=../common
 # Name of the linker script (must be the "keep" script, because the other script is not always working)
-LDSCRIPT:=$(wildcard ../common/*.ld)
+LDSCRIPT:=$(wildcard *.ld)
 
 # Uinx device of the USB-RS232 converter for the flash tool
 FLASHPORT:=/dev/ttyUSB0
@@ -148,7 +146,7 @@ CFLAGS:=$(COMMON_FLAGS) -std=gnu99
 GC:=-Wl,--gc-sections
 MAP:=-Wl,-Map=$(MAPNAME)
 LFLAGS:=$(COMMON_FLAGS) $(GC) $(MAP)
-LDLIBS:=--specs=nano.specs -lc -lc -lnosys -L$(LDSCRIPTDIR) -T $(LDSCRIPT)
+LDLIBS:=--specs=nano.specs -lc -lc -lnosys -T $(LDSCRIPT)
 
 # Additional Suffixes
 .SUFFIXES: .elf .hex .dis
