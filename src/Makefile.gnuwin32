@@ -73,11 +73,6 @@
 # The base directory of gcc-arm-none-eabi
 GCCPATH:="c:\Program Files (x86)\GNU Tools ARM Embedded"
 
-# Flash Tool
-# FLASHTOOL:= /c/Program\ Files\ \(x86\)/Flash\ Magic/FlashMagic.exe
-FLASHTOOL:= /c/Program\ Files\ \(x86\)/Flash\ Magic/FM.exe
-FLASHMAGICDEVICE:=LPC1114/102
-
 #================================================
 # Project Information
 
@@ -87,9 +82,6 @@ TARGETNAME:=arm-gps-tracker
 # The source files of the project
 SRC:=$(wildcard *.c)
 
-# U8glib path to c source files
-U8GPATH:=../../src
-
 
 # The CPU architecture (will be used for -mcpu)
 MCPU:=cortex-m0
@@ -98,23 +90,17 @@ MCPU:=cortex-m0
 # Usually this can be taken from
 # gcc-arm-none-eabi-4_7-2013q1/share/gcc-arm-none-eabi/samples/startup
 # STARTUP:=$(GCCPATH)/share/gcc-arm-none-eabi/samples/startup/startup_ARMCM0.S
-STARTUP:=$(wildcard ../common/*.S)
+STARTUP:=$(wildcard *.S)
 
 # Include directory for the system include files
-SYSINC:=../common
-SYSSRC:=$(wildcard ../common/*.c)
+#SYSINC:=../common
+#SYSSRC:=$(wildcard ../common/*.c)
 
 # Name of the linker script (must be the "keep" script, because the other script is not always working)
 LDSCRIPT:=$(wildcard *.ld)
 
-# Uinx device of the USB-RS232 converter for the flash tool
-FLASHPORT:=/dev/ttyUSB0
-
 #================================================
 # Main part of the Makefile starts here. Usually no changes are needed.
-
-# U8G Source files
-U8GSRC:=$(wildcard $(U8GPATH)/*.c)
 
 # Internal Variable Names
 ELFNAME:=$(TARGETNAME).elf
@@ -133,9 +119,9 @@ SIZE:=$(GCCPATH)\bin\arm-none-eabi-size
 
 # Common flags
 COMMON_FLAGS = -mthumb -mcpu=$(MCPU)
-COMMON_FLAGS += -Wall -I. -I$(SYSINC) -I$(U8GPATH)
-# default stack size is 0x0c00
-COMMON_FLAGS += -D__STACK_SIZE=0x0a00
+COMMON_FLAGS += -Wall -I. 
+# 13 Nov 2013: Internal measure 824 Bytes --> 0x0600=1536
+COMMON_FLAGS += -D__STACK_SIZE=0x0600
 COMMON_FLAGS += -Os -flto 
 COMMON_FLAGS += -ffunction-sections -fdata-sections
 # Assembler flags
@@ -156,14 +142,10 @@ LDLIBS:=--specs=nano.specs -lc -lc -lnosys -T $(LDSCRIPT)
 all: $(DISNAME) $(HEXNAME)
 	$(SIZE) $(ELFNAME)
 
-.PHONY: upload
-upload: $(DISNAME) $(HEXNAME) $(ELFNAME)
-	$(FLASHTOOL) HEXFILE\($(HEXNAME),NOCHECKSUMS,FILL,PROTECTISP\) COM\(5,38400\) DEVICE\($(FLASHMAGICDEVICE),12.000,0\)
-	$(SIZE) $(ELFNAME)
-
 .PHONY: clean
 clean:
-	$(RM) $(OBJ) $(HEXNAME) $(ELFNAME) $(DISNAME) $(MAPNAME)
+	del *.o *.hex *.elf *.dis *.map
+#	$(HEXNAME) $(ELFNAME) $(DISNAME) $(MAPNAME)
 
 # implicit rules
 .S.o:
